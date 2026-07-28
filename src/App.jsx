@@ -1,9 +1,11 @@
 import { useState } from 'react';
 import PantryManager from './components/PantryManager';
+import ChatWindow from './components/ChatWindow';
 import './App.css';
 
 function App() {
   const [pantryCount, setPantryCount] = useState(0);
+  const [activeTab, setActiveTab] = useState('chat');
 
   return (
     <div className="app">
@@ -15,15 +17,25 @@ function App() {
         <span className="header-tagline">Your personal cooking companion</span>
       </header>
 
+      <nav className="tab-nav">
+        <button
+          className={`tab-btn ${activeTab === 'chat' ? 'tab-btn--active' : ''}`}
+          onClick={() => setActiveTab('chat')}
+        >
+          💬 Chat
+        </button>
+        <button
+          className={`tab-btn ${activeTab === 'pantry' ? 'tab-btn--active' : ''}`}
+          onClick={() => setActiveTab('pantry')}
+        >
+          🧺 Pantry {pantryCount > 0 && <span className="tab-badge">{pantryCount}</span>}
+        </button>
+      </nav>
+
       <main className="app-main">
-        <PantryManager onPantryChange={setPantryCount} />
-        <div className="chat-placeholder">
-          <div className="placeholder-content">
-            <span className="placeholder-icon">💬</span>
-            <h3>Chat coming on Day 5</h3>
-            <p>The AI chat interface will be built tomorrow.</p>
-            <p>For now, manage your pantry on the left!</p>
-          </div>
+        <div className={`panel-wrapper ${activeTab === 'pantry' ? 'panel-wrapper--show-pantry' : ''}`}>
+          <PantryManager onPantryChange={setPantryCount} />
+          <ChatWindow />
         </div>
       </main>
     </div>
