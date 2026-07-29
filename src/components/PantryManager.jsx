@@ -8,19 +8,23 @@ function PantryManager({ onPantryChange }) {
   const [quantity, setQuantity] = useState('');
   const [unit, setUnit] = useState('');
   const [error, setError] = useState('');
-  const [loading, setLoading] = useState(false);
+  const [adding, setAdding] = useState(false);
+  const [initialLoading, setInitialLoading] = useState(true);
+  const [deletingId, setDeletingId] = useState(null);
 
   useEffect(() => {
-    fetchIngredients();
+    fetchIngredients(true);
   }, []);
 
-  const fetchIngredients = async () => {
+  const fetchIngredients = async (isInitial = false) => {
     try {
       const data = await getIngredients();
       setIngredients(data);
       if (onPantryChange) onPantryChange(data.length);
     } catch (err) {
       setError('Failed to load pantry. Is the backend running?');
+    } finally {
+      if (isInitial) setInitialLoading(false);
     }
   };
 
@@ -31,9 +35,13 @@ function PantryManager({ onPantryChange }) {
       return;
     }
     setError('');
-    setLoading(true);
+    setAdding(true);
     try {
-      await addIngredient({ name: name.trim(), quantity: quantity.trim(), unit: unit.trim() });
+      await addIngredient({
+        name: name.trim(),
+        quantity: quantity.trim(),
+        unit: unit.trim(),
+      });
       setName('');
       setQuantity('');
       setUnit('');
@@ -41,16 +49,19 @@ function PantryManager({ onPantryChange }) {
     } catch (err) {
       setError('Failed to add ingredient. Please try again.');
     } finally {
-      setLoading(false);
+      setAdding(false);
     }
   };
 
   const handleDelete = async (id) => {
+    setDeletingId(id);
     try {
       await deleteIngredient(id);
       await fetchIngredients();
     } catch (err) {
       setError('Failed to remove ingredient. Please try again.');
+    } finally {
+      setDeletingId(null);
     }
   };
 
@@ -58,17 +69,21 @@ function PantryManager({ onPantryChange }) {
     <div className="pantry-panel">
       <h2 className="panel-title">
         🧺 Your Pantry
-        <span className="ingredient-count">{ingredients.length}</span>
+        {ingredients.length > 0 && (
+          <span className="ingredient-count">{ingredients.length}</span>
+        )}
       </h2>
 
-      <form className="add-form" onSubmit={handleAdd}>
+      <form className="add-form" onSubmit={handleAdd} noValidate>
         <input
           className="input-name"
           type="text"
           placeholder="Ingredient name *"
           value={name}
-          onChange={(e) => setName(e.target.value)}
+          onChange={(e) => { setName(e.target.value); setError(''); }}
           maxLength={100}
+          aria-label="Ingredient name"
+          aria-required="true"
         />
         <div className="input-row">
           <input
@@ -78,28 +93,60 @@ function PantryManager({ onPantryChange }) {
             value={quantity}
             onChange={(e) => setQuantity(e.target.value)}
             maxLength={50}
+            aria-label="Quantity"
           />
           <input
             className="input-unit"
             type="text"
-            placeholder="Unit"
+            placeholder="Unit (e.g. kg, cups)"
             value={unit}
             onChange={(e) => setUnit(e.target.value)}
             maxLength={30}
+            aria-label="Unit"
           />
         </div>
-        {error && <p className="error-msg">{error}</p>}
-        <button className="add-btn" type="submit" disabled={loading}>
-          {loading ? 'Adding...' : '+ Add to Pantry'}
+
+        {error && (
+          <div className="error-msg error-msg--dismissible" role="alert">
+            <span>{error}</span>
+            <button
+              type="button"
+              className="error-dismiss"
+              onClick={() => setError('')}
+              aria-label="Dismiss error"
+            >
+              ×
+            </button>
+          </div>
+        )}
+
+        <button className="add-btn" type="submit" disabled={adding}>
+          {adding ? (
+            <span className="btn-loading">
+              <span className="btn-spinner" />
+              Adding...
+            </span>
+          ) : (
+            '+ Add to Pantry'
+          )}
         </button>
       </form>
 
-      <div className="ingredient-list">
-        {ingredients.length === 0 ? (
+      <div className="ingredient-list" aria-label="Pantry ingredients">
+        {initialLoading ? (
+          <div className="skeleton-list">
+            {[1, 2, 3].map((n) => (
+              <div key={n} className="skeleton-item">
+                <div className="skeleton-name" />
+                <div className="skeleton-qty" />
+              </div>
+            ))}
+          </div>
+        ) : ingredients.length === 0 ? (
           <div className="empty-state">
             <span className="empty-icon">🥘</span>
-            <p>Your pantry is empty.</p>
-            <p>Add some ingredients to get started!</p>
+            <p><strong>Your pantry is empty!</strong></p>
+            <p>Add your first ingredient above to get personalised cooking suggestions from PantryChef AI.</p>
           </div>
         ) : (
           ingredients.map((ingredient) => (
@@ -107,6 +154,7 @@ function PantryManager({ onPantryChange }) {
               key={ingredient.id}
               ingredient={ingredient}
               onDelete={handleDelete}
+              isDeleting={deletingId === ingredient.id}
             />
           ))
         )}

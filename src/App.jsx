@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import Header from './components/Header';
 import PantryManager from './components/PantryManager';
 import ChatWindow from './components/ChatWindow';
 import PreferencesPanel from './components/PreferencesPanel';
@@ -10,51 +11,48 @@ function App() {
 
   return (
     <div className="app">
-      <header className="app-header">
-        <div className="header-left">
-          <span className="header-logo">🍽️</span>
-          <span className="header-title">PantryChef AI</span>
-        </div>
-        <div className="header-right">
-          <button
-            className={`header-prefs-btn ${activeTab === 'prefs' ? 'header-prefs-btn--active' : ''}`}
-            onClick={() => setActiveTab(activeTab === 'prefs' ? 'chat' : 'prefs')}
-            title="Preferences"
-          >
-            ⚙️ {activeTab === 'prefs' ? 'Back to Chat' : 'Preferences'}
-          </button>
-          <span className="header-tagline">Your personal cooking companion</span>
-        </div>
-      </header>
+      <Header
+        activeTab={activeTab}
+        onPrefsClick={() => setActiveTab(activeTab === 'prefs' ? 'chat' : 'prefs')}
+      />
 
-      <nav className="tab-nav">
+      {/* Mobile tab navigation */}
+      <nav className="tab-nav" role="tablist" aria-label="Main navigation">
         <button
           className={`tab-btn ${activeTab === 'chat' ? 'tab-btn--active' : ''}`}
           onClick={() => setActiveTab('chat')}
+          role="tab"
+          aria-selected={activeTab === 'chat'}
         >
           💬 Chat
         </button>
         <button
           className={`tab-btn ${activeTab === 'pantry' ? 'tab-btn--active' : ''}`}
           onClick={() => setActiveTab('pantry')}
+          role="tab"
+          aria-selected={activeTab === 'pantry'}
         >
-          🧺 Pantry {pantryCount > 0 && <span className="tab-badge">{pantryCount}</span>}
+          🧺 Pantry{pantryCount > 0 && <span className="tab-badge">{pantryCount}</span>}
         </button>
         <button
           className={`tab-btn ${activeTab === 'prefs' ? 'tab-btn--active' : ''}`}
           onClick={() => setActiveTab('prefs')}
+          role="tab"
+          aria-selected={activeTab === 'prefs'}
         >
-          ⚙️ Preferences
+          ⚙️ Prefs
         </button>
       </nav>
 
       <main className="app-main">
+        {/* Mobile: single panel */}
         <div className="mobile-view">
           {activeTab === 'chat' && <ChatWindow />}
           {activeTab === 'pantry' && <PantryManager onPantryChange={setPantryCount} />}
           {activeTab === 'prefs' && <PreferencesPanel />}
         </div>
 
+        {/* Desktop: split layout or full-width prefs */}
         <div className="desktop-view">
           {activeTab === 'prefs' ? (
             <div className="desktop-prefs-layout">
@@ -71,9 +69,13 @@ function App() {
 
       <footer className="app-footer">
         Built with Claude as part of the &nbsp;
-        <a href="https://www.youtube.com/@ABTalks" target="_blank" rel="noopener noreferrer">
+        <a
+          href="https://www.youtube.com/@ABTalks"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
           AB Talks
-        </a>&nbsp; 
+        </a>&nbsp;
         60-Day Claude AI Challenge
       </footer>
     </div>
