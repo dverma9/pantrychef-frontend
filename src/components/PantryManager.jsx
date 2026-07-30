@@ -21,6 +21,8 @@ function PantryManager({ onPantryChange }) {
       const data = await getIngredients();
       setIngredients(data);
       if (onPantryChange) onPantryChange(data.length);
+      // Clear any stale error once pantry loads successfully
+      setError('');
     } catch (err) {
       setError('Failed to load pantry. Is the backend running?');
     } finally {
@@ -55,12 +57,20 @@ function PantryManager({ onPantryChange }) {
 
   const handleDelete = async (id) => {
     setDeletingId(id);
+    setError('');
     try {
       await deleteIngredient(id);
-      await fetchIngredients();
     } catch (err) {
-      setError('Failed to remove ingredient. Please try again.');
+      // If the item is already gone (404), silently continue —
+      // the end result is the same: item is not in pantry.
+      // Only show an error for genuine server failures.
+      if (!err.message?.includes('not found')) {
+        setError('Failed to remove ingredient. Please try again.');
+      }
     } finally {
+      // Always refresh the list regardless of error —
+      // this clears the UI correctly even on 404
+      await fetchIngredients();
       setDeletingId(null);
     }
   };
