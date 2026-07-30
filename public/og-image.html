@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    width: 1200px;
+    height: 630px;
+    background: linear-gradient(135deg, #1B5E20 0%, #2E7D32 50%, #388E3C 100%);
+    font-family: 'Segoe UI', system-ui, sans-serif;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+  }
+  .card {
+    text-align: center;
+    color: white;
+    padding: 60px;
+  }
+  .emoji { font-size: 100px; margin-bottom: 24px; display: block; }
+  .title { font-size: 72px; font-weight: 800; letter-spacing: -2px; margin-bottom: 16px; }
+  .subtitle { font-size: 32px; color: #A5D6A7; font-weight: 400; margin-bottom: 40px; line-height: 1.4; }
+  .pills { display: flex; gap: 16px; justify-content: center; flex-wrap: wrap; }
+  .pill {
+    background: rgba(255,255,255,0.15);
+    border: 1px solid rgba(255,255,255,0.3);
+    border-radius: 999px;
+    padding: 10px 24px;
+    font-size: 22px;
+    font-weight: 600;
+  }
+  .url { margin-top: 40px; font-size: 20px; color: #C8E6C9; opacity: 0.8; }
+</style>
+</head>
+<body>
+  <div class="card">
+    <span class="emoji">🍽️</span>
+    <div class="title">PantryChef AI</div>
+    <div class="subtitle">Cook smarter with what you have.<br>Powered by Gemini AI.</div>
+    <div class="pills">
+      <span class="pill">🧺 Pantry Tracking</span>
+      <span class="pill">💬 AI Chat</span>
+      <span class="pill">📋 Recipes</span>
+      <span class="pill">🔍 Missing Ingredients</span>
+    </div>
+    <div class="url">cookwithpantrychef-ai.vercel.app</div>
+  </div>
+</body>
+</html>
