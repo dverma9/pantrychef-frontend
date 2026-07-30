@@ -32,7 +32,7 @@ function ChatWindow() {
   const getHistory = useCallback((msgs) => {
     return msgs
       .filter((m) => m.role === 'user' || m.role === 'ai')
-      .slice(-20) // cap at last 20 messages
+      .slice(-20)
       .map((m) => ({
         role: m.role === 'ai' ? 'assistant' : 'user',
         content: m.content,
@@ -56,7 +56,8 @@ function ChatWindow() {
       const reply = await sendMessage(text, history.slice(0, -1));
       setMessages([...updatedMessages, { role: 'ai', content: reply }]);
     } catch (err) {
-      setError('Something went wrong. Please check your connection and try again.');
+      // Use the actual error message thrown by chatApi.js
+      setError(err.message || 'Something went wrong. Please try again.');
       setMessages(updatedMessages);
     } finally {
       setIsLoading(false);
